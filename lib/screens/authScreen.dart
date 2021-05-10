@@ -96,11 +96,17 @@ class _AuthCardState extends State<AuthCard> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.Login;
   Map<String, String> _authData = {
-    'email': '',
-    'password': '',
+    'email': 'aks@gmail.com',
+    'password': 'aksaks',
   };
   var _isLoading = false;
   final _passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.text = _authData["password"];
+  }
 
   void _submit() async {
     if (!_formKey.currentState.validate()) {
@@ -175,6 +181,7 @@ class _AuthCardState extends State<AuthCard> {
             child: Column(
               children: <Widget>[
                 TextFormField(
+                  initialValue: _authData["email"],
                   decoration: InputDecoration(labelText: 'E-Mail'),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {

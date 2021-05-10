@@ -20,20 +20,16 @@ class Product with ChangeNotifier {
     this.isFav = false,
   });
 
-  void toggleFav() async {
-    bool _isFav = isFav;
+  void toggleFav(userId, token) async {
+    bool oldStatus = isFav;
     isFav = !isFav;
     notifyListeners();
     final url = Uri.parse(
-        'https://fluttershop-ea6ea-default-rtdb.firebaseio.com/products/$id.json');
-
+        'https://fluttershop-ea6ea-default-rtdb.firebaseio.com/userFavourits/$userId/$id.json?auth=$token');
     try {
-      final res = await http.patch(url,
-          body: jsonEncode({
-            "isFav": !_isFav,
-          }));
+      final res = await http.put(url, body: jsonEncode(isFav));
       if (res.statusCode >= 300) {
-        isFav = _isFav;
+        isFav = oldStatus;
         notifyListeners();
       }
     } catch (e) {

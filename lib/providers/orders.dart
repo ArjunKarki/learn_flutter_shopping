@@ -15,6 +15,9 @@ class OrderItems {
 
 class Orders with ChangeNotifier {
   List<OrderItems> _orders = [];
+  String userId;
+  String token;
+  Orders(this.userId, this.token);
 
   List<OrderItems> get getOrders {
     return [..._orders];
@@ -22,35 +25,37 @@ class Orders with ChangeNotifier {
 
   Future<void> fetchOrders() async {
     final url = Uri.parse(
-        'https://fluttershop-ea6ea-default-rtdb.firebaseio.com/orders.json');
+        'https://fluttershop-ea6ea-default-rtdb.firebaseio.com/orders/$userId.json?auth=$token');
 
     final res = await http.get(url);
     var resJson = jsonDecode(res.body) as Map<String, dynamic>;
     List<OrderItems> loadedOrders = [];
-    resJson.forEach((orderId, value) {
-      loadedOrders.add(
-        OrderItems(
-          id: orderId,
-          amount: value["amount"],
-          time: DateTime.parse(value["time"]),
-          products: (value["products"] as List<dynamic>)
-              .map((ci) => CartItem(
-                    id: ci["id"],
-                    price: ci["price"],
-                    quantity: ci["quantity"],
-                    title: ci["title"],
-                  ))
-              .toList(),
-        ),
-      );
-    });
+    if (resJson != null) {
+      resJson.forEach((orderId, value) {
+        loadedOrders.add(
+          OrderItems(
+            id: orderId,
+            amount: value["amount"],
+            time: DateTime.parse(value["time"]),
+            products: (value["products"] as List<dynamic>)
+                .map((ci) => CartItem(
+                      id: ci["id"],
+                      price: ci["price"],
+                      quantity: ci["quantity"],
+                      title: ci["title"],
+                    ))
+                .toList(),
+          ),
+        );
+      });
+    }
     _orders = loadedOrders.reversed.toList();
     notifyListeners();
   }
 
   Future<void> addOrder(double amount, List<CartItem> products) async {
     final url = Uri.parse(
-        'https://fluttershop-ea6ea-default-rtdb.firebaseio.com/orders.json');
+        'https://fluttershop-ea6ea-default-rtdb.firebaseio.com/orders/$userId.json?auth=$token');
 
     await http.post(url,
         body: jsonEncode({
